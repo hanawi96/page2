@@ -38,7 +38,7 @@
 	{/snippet}
 </PageHeader>
 
-<div class="sections">
+<div class="body" data-empty={data.pages.length === 0}>
 	{#if connectMessage}
 		<Alert tone={connectMessage.tone}>{connectMessage.text}</Alert>
 	{/if}
@@ -47,16 +47,58 @@
 	{/if}
 
 	{#if data.canManage && data.accounts.length > 0}
-		<AccountList accounts={data.accounts} {pageCounts} feedback={accountFeedback} />
+		<div class="sections">
+			<AccountList accounts={data.accounts} {pageCounts} feedback={accountFeedback} />
+		</div>
 	{/if}
 
-	<PageList pages={data.pages} canConnect={data.canManage} />
+	{#if data.pages.length === 0}
+		<div class="center">
+			<h2>Chưa có fanpage nào</h2>
+			<p>
+				{data.canManage
+					? 'Bấm "Kết nối Facebook" để đăng nhập và nạp toàn bộ fanpage bạn quản lý, kể cả fanpage trong Business Manager.'
+					: 'Hãy nhờ chủ sở hữu hoặc quản trị viên kết nối tài khoản Facebook.'}
+			</p>
+		</div>
+	{:else}
+		<div class="sections">
+			<PageList pages={data.pages} />
+		</div>
+	{/if}
 </div>
 
 <style>
+	.body[data-empty='true'] {
+		display: flex;
+		flex-direction: column;
+		min-height: calc(100dvh - var(--space-6) - var(--space-10));
+	}
 	.sections {
 		display: grid;
 		gap: var(--space-5);
 		max-width: 60rem;
+	}
+	.center {
+		display: grid;
+		flex: 1;
+		place-content: center;
+		justify-items: center;
+		gap: var(--space-2);
+		padding: var(--space-6);
+		text-align: center;
+	}
+	.center h2 {
+		font-size: var(--text-lg);
+	}
+	.center p {
+		max-width: 28rem;
+		color: var(--color-text-muted);
+	}
+
+	@media (max-width: 1023.98px) {
+		.body[data-empty='true'] {
+			min-height: calc(100dvh - var(--topbar-height) - var(--space-4) - var(--space-8));
+		}
 	}
 </style>

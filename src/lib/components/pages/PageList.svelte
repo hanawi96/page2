@@ -1,19 +1,15 @@
 <script lang="ts">
 	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import Badge from '#lib/components/ui/Badge.svelte';
-	import EmptyState from '#lib/components/ui/EmptyState.svelte';
 	import SearchInput from '#lib/components/ui/SearchInput.svelte';
 	import { canPublish, type PageSummary } from '#lib/domain/facebook.js';
 	import { formatNumber, normalizeText } from '#lib/utils/text.js';
-	import { Flag } from '@lucide/svelte';
 
 	type Props = {
 		pages: PageSummary[];
-		/** Cho phép hiển thị gợi ý kết nối khi chưa có fanpage nào. */
-		canConnect: boolean;
 	};
 
-	let { pages, canConnect }: Props = $props();
+	let { pages }: Props = $props();
 
 	let query = $state('');
 	const visible = $derived.by(() => {
@@ -28,25 +24,10 @@
 <section class="card block" aria-labelledby="pages-title">
 	<header class="head">
 		<h2 id="pages-title">Danh sách fanpage <small>({formatNumber(pages.length)})</small></h2>
-		{#if pages.length > 0}
-			<SearchInput
-				bind:value={query}
-				label="Tìm fanpage"
-				placeholder="Tìm theo tên hoặc danh mục"
-			/>
-		{/if}
+		<SearchInput bind:value={query} label="Tìm fanpage" placeholder="Tìm theo tên hoặc danh mục" />
 	</header>
 
-	{#if pages.length === 0}
-		<EmptyState
-			title="Chưa có fanpage nào"
-			description={canConnect
-				? 'Bấm "Kết nối Facebook" để đăng nhập và nạp toàn bộ fanpage bạn quản lý, kể cả fanpage trong Business Manager.'
-				: 'Hãy nhờ chủ sở hữu hoặc quản trị viên kết nối tài khoản Facebook.'}
-		>
-			{#snippet icon()}<Flag size={24} />{/snippet}
-		</EmptyState>
-	{:else if visible.length === 0}
+	{#if visible.length === 0}
 		<p class="muted">Không tìm thấy fanpage phù hợp với "{query}".</p>
 	{:else}
 		<ul class="pages">

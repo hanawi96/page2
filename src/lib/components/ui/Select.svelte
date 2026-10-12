@@ -45,7 +45,9 @@
 <style>
 	.field {
 		display: grid;
+		align-content: start;
 		gap: var(--space-1);
+		min-width: 0;
 	}
 	label:not(.sr-only) {
 		font-size: var(--text-sm);
@@ -55,6 +57,7 @@
 		position: relative;
 		display: flex;
 		align-items: center;
+		width: 100%;
 		color: var(--color-text-muted);
 	}
 	select {

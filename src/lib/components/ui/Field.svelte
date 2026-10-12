@@ -34,13 +34,17 @@
 <style>
 	.field {
 		display: grid;
+		align-content: start;
 		gap: var(--space-1);
+		min-width: 0;
 	}
 	label {
 		font-size: var(--text-sm);
 		font-weight: var(--weight-medium);
 	}
 	input {
+		align-self: start;
+		width: 100%;
 		height: 2.5rem;
 		padding: 0 var(--space-3);
 		border: 1px solid var(--color-border-strong);

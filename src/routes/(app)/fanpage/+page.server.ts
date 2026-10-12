@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+import { FB_DIALOG_ORIGIN } from '#lib/config/facebook.js';
 import { accountActionSchema, emptyFormSchema } from '#lib/domain/facebook-schemas.js';
 import { isConnectResult } from '#lib/domain/facebook.js';
 import { canManagePages } from '#lib/domain/roles.js';
@@ -27,7 +28,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 export const actions: Actions = {
 	connect: formAction('connect', emptyFormSchema, async (_data, { locals, cookies }) => {
 		if (!canManagePages(requireAuth(locals).role)) throw new ForbiddenError();
-		redirect(303, startLogin(cookies));
+		// SvelteKit 3 chặn redirect ra domain khác nếu không khai báo origin cho phép.
+		redirect(303, startLogin(cookies), { external: [FB_DIALOG_ORIGIN] });
 	}),
 
 	sync: formAction('sync', accountActionSchema, async (data, { locals }) => {

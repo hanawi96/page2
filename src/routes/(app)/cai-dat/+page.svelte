@@ -44,12 +44,12 @@
 		</div>
 
 		<h3>Đổi mật khẩu</h3>
-		<div class="narrow">
-			<Form action="?/changePassword" onsuccess={() => toasts.push('Đã đổi mật khẩu.', 'success')}>
-				{#snippet children({ submitting })}
-					{#if failed('changePassword')?.message}
-						<Alert tone="danger">{form?.message}</Alert>
-					{/if}
+		<Form action="?/changePassword" onsuccess={() => toasts.push('Đã đổi mật khẩu.', 'success')}>
+			{#snippet children({ submitting })}
+				{#if failed('changePassword')?.message}
+					<Alert tone="danger">{form?.message}</Alert>
+				{/if}
+				<div class="stack">
 					<Field
 						label="Mật khẩu hiện tại"
 						name="currentPassword"
@@ -80,9 +80,9 @@
 							{submitting ? 'Đang lưu...' : 'Đổi mật khẩu'}
 						</Button>
 					</div>
-				{/snippet}
-			</Form>
-		</div>
+				</div>
+			{/snippet}
+		</Form>
 	</section>
 
 	{#if data.members}
@@ -113,7 +113,7 @@
 							{#if failed('createMember')?.message}
 								<Alert tone="danger">{form?.message}</Alert>
 							{/if}
-							<div class="grid-2">
+							<div class="fields">
 								<Field
 									label="Họ tên"
 									name="name"
@@ -125,6 +125,7 @@
 									label="Email"
 									name="email"
 									type="email"
+									autocomplete="off"
 									value={failed('createMember')?.values?.email ?? ''}
 									error={failed('createMember')?.errors?.email}
 									required
@@ -134,7 +135,7 @@
 									name="password"
 									type="password"
 									autocomplete="new-password"
-									hint="Tối thiểu {PASSWORD_MIN_LENGTH} ký tự. Hãy gửi cho người dùng và nhắc họ đổi sau."
+									hint="Tối thiểu {PASSWORD_MIN_LENGTH} ký tự."
 									error={failed('createMember')?.errors?.password}
 									required
 								/>
@@ -146,6 +147,7 @@
 									value={failed('createMember')?.values?.role ?? 'editor'}
 								/>
 							</div>
+							<p class="note">Gửi mật khẩu cho người dùng và nhắc họ đổi sau lần đăng nhập đầu.</p>
 							<div class="actions">
 								<Button type="submit" variant="primary" disabled={submitting}>
 									{#snippet icon()}<Plus size={16} />{/snippet}
@@ -271,9 +273,6 @@
 		margin-top: var(--space-2);
 		font-size: var(--text-base);
 	}
-	.narrow {
-		max-width: 24rem;
-	}
 	.profile {
 		display: flex;
 		align-items: center;
@@ -293,14 +292,33 @@
 		box-shadow: none;
 		background: var(--color-surface-2);
 	}
-	.grid-2 {
+	.stack {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
 		gap: var(--space-4);
+		max-width: calc((100% - var(--space-4)) / 2);
+	}
+	.fields {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--space-4);
+		align-items: start;
+	}
+	.note {
+		margin: 0;
+		color: var(--color-text-muted);
+		font-size: var(--text-sm);
 	}
 	.actions {
 		display: flex;
 		gap: var(--space-2);
+	}
+	@media (max-width: 640px) {
+		.stack {
+			max-width: none;
+		}
+		.fields {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	.members {
