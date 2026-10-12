@@ -149,6 +149,15 @@ svg {
 	--accent-bg: var(--accent-teal-bg);
 }
 
+/* Chỉ trong một frame đổi theme: chặn fade màu. !important vì transition không kế thừa. */
+:root[data-theme-switching],
+:root[data-theme-switching] *,
+:root[data-theme-switching] *::before,
+:root[data-theme-switching] *::after {
+	transition: none !important;
+	animation: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,

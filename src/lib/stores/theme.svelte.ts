@@ -14,13 +14,19 @@ class ThemeState {
 	}
 
 	toggle(): void {
+		const root = document.documentElement;
+		// Tắt transition trong lúc đổi biến màu, kẻo cả trang fade theo background/color.
+		root.setAttribute('data-theme-switching', '');
 		this.current = this.current === 'dark' ? 'light' : 'dark';
-		document.documentElement.dataset.theme = this.current;
+		root.dataset.theme = this.current;
 		try {
 			localStorage.setItem(STORAGE_KEY, this.current);
 		} catch {
 			/* Bỏ qua nếu trình duyệt chặn localStorage */
 		}
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => root.removeAttribute('data-theme-switching'));
+		});
 	}
 }
 
