@@ -1,0 +1,169 @@
+/*
+ * DESIGN TOKENS — nguồn duy nhất cho màu sắc, typography, spacing, bo góc, đổ bóng.
+ * Component KHÔNG được hardcode giá trị; luôn dùng biến ở đây.
+ * Đổi thương hiệu: chỉ cần sửa nhóm "Brand" bên dưới.
+ */
+
+:root {
+	color-scheme: light;
+
+	/* ---------- Brand ---------- */
+	--brand-50: #eef3ff;
+	--brand-100: #dde7ff;
+	--brand-200: #bfd0ff;
+	--brand-400: #6f90fb;
+	--brand-500: #3f6bf5;
+	--brand-600: #2f57e0;
+	--brand-700: #2646b8;
+
+	/* ---------- Semantic: nền & chữ ---------- */
+	--color-bg: #f5f7fb;
+	--color-surface: #ffffff;
+	--color-surface-2: #f3f6fb;
+	--color-surface-hover: #f0f4fa;
+	--color-border: #e6eaf2;
+	--color-border-strong: #d3d9e6;
+	--color-text: #141a2b;
+	--color-text-muted: #596378;
+	--color-text-subtle: #8791a5;
+	--color-overlay: rgb(14 19 32 / 0.45);
+
+	--color-primary: var(--brand-500);
+	--color-primary-hover: var(--brand-600);
+	--color-primary-soft: var(--brand-50);
+	--color-primary-soft-hover: var(--brand-100);
+	--color-on-primary: #ffffff;
+	--color-focus: rgb(63 107 245 / 0.35);
+
+	/* ---------- Semantic: trạng thái ---------- */
+	--color-success: #12905b;
+	--color-success-soft: #e3f6ed;
+	--color-warning: #b86a00;
+	--color-warning-soft: #fff1dc;
+	--color-danger: #d23b40;
+	--color-danger-soft: #fdeaea;
+	--color-info: #2f57e0;
+	--color-info-soft: #e8eeff;
+
+	/* ---------- Bảng màu chủ đề (accent) ---------- */
+	--accent-blue-fg: #3f6bf5;
+	--accent-blue-bg: #e8eeff;
+	--accent-pink-fg: #e0407a;
+	--accent-pink-bg: #fdebf2;
+	--accent-orange-fg: #e8801a;
+	--accent-orange-bg: #fff0dd;
+	--accent-green-fg: #17a06b;
+	--accent-green-bg: #e1f6ec;
+	--accent-purple-fg: #7a5ae0;
+	--accent-purple-bg: #eee9fd;
+	--accent-yellow-fg: #d79a00;
+	--accent-yellow-bg: #fff5d4;
+	--accent-teal-fg: #0b9d9c;
+	--accent-teal-bg: #dcf4f3;
+
+	/* ---------- Typography ---------- */
+	--font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	--text-xs: 0.75rem; /* 12 */
+	--text-sm: 0.8125rem; /* 13 */
+	--text-base: 0.875rem; /* 14 */
+	--text-md: 1rem; /* 16 */
+	--text-lg: 1.125rem; /* 18 */
+	--text-xl: 1.375rem; /* 22 */
+	--text-2xl: 1.625rem; /* 26 */
+	--weight-regular: 400;
+	--weight-medium: 500;
+	--weight-semibold: 600;
+	--weight-bold: 700;
+	--leading-tight: 1.25;
+	--leading-normal: 1.5;
+
+	/* ---------- Spacing (lưới 4px) ---------- */
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-5: 1.25rem;
+	--space-6: 1.5rem;
+	--space-8: 2rem;
+	--space-10: 2.5rem;
+	--space-12: 3rem;
+
+	/* ---------- Bo góc ---------- */
+	--radius-sm: 0.5rem;
+	--radius-md: 0.75rem;
+	--radius-lg: 1rem;
+	--radius-xl: 1.25rem;
+	--radius-pill: 999px;
+
+	/* ---------- Đổ bóng ---------- */
+	--shadow-sm: 0 1px 2px rgb(20 26 43 / 0.05);
+	--shadow-md: 0 4px 14px rgb(20 26 43 / 0.07);
+	--shadow-lg: 0 12px 32px rgb(20 26 43 / 0.12);
+
+	/* ---------- Layout ---------- */
+	--sidebar-width: 15.5rem;
+	--topbar-height: 4rem;
+	--detail-width: 25rem;
+
+	/* ---------- Chuyển động ---------- */
+	--duration-fast: 120ms;
+	--duration-base: 200ms;
+	--ease: cubic-bezier(0.2, 0, 0, 1);
+
+	/* ---------- Z-index ---------- */
+	--z-sidebar: 40;
+	--z-overlay: 50;
+	--z-drawer: 60;
+	--z-toast: 80;
+}
+
+/* ====================== Dark theme ====================== */
+:root[data-theme='dark'] {
+	color-scheme: dark;
+
+	--color-bg: #0d1220;
+	--color-surface: #141b2d;
+	--color-surface-2: #19223a;
+	--color-surface-hover: #1c2640;
+	--color-border: #242e49;
+	--color-border-strong: #33405f;
+	--color-text: #e8ecf6;
+	--color-text-muted: #a0abc2;
+	--color-text-subtle: #76829b;
+	--color-overlay: rgb(3 6 14 / 0.65);
+
+	--color-primary: #5d82ff;
+	--color-primary-hover: #7a99ff;
+	--color-primary-soft: rgb(93 130 255 / 0.16);
+	--color-primary-soft-hover: rgb(93 130 255 / 0.26);
+	--color-on-primary: #ffffff;
+	--color-focus: rgb(93 130 255 / 0.45);
+
+	--color-success: #3ddc97;
+	--color-success-soft: rgb(61 220 151 / 0.15);
+	--color-warning: #ffb454;
+	--color-warning-soft: rgb(255 180 84 / 0.15);
+	--color-danger: #ff6b70;
+	--color-danger-soft: rgb(255 107 112 / 0.15);
+	--color-info: #7a99ff;
+	--color-info-soft: rgb(122 153 255 / 0.15);
+
+	--accent-blue-fg: #7a99ff;
+	--accent-blue-bg: rgb(122 153 255 / 0.16);
+	--accent-pink-fg: #ff7aa8;
+	--accent-pink-bg: rgb(255 122 168 / 0.16);
+	--accent-orange-fg: #ffa64d;
+	--accent-orange-bg: rgb(255 166 77 / 0.16);
+	--accent-green-fg: #3ddc97;
+	--accent-green-bg: rgb(61 220 151 / 0.16);
+	--accent-purple-fg: #a78bfa;
+	--accent-purple-bg: rgb(167 139 250 / 0.16);
+	--accent-yellow-fg: #fbbf24;
+	--accent-yellow-bg: rgb(251 191 36 / 0.16);
+	--accent-teal-fg: #2dd4bf;
+	--accent-teal-bg: rgb(45 212 191 / 0.16);
+
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+	--shadow-md: 0 4px 14px rgb(0 0 0 / 0.35);
+	--shadow-lg: 0 12px 32px rgb(0 0 0 / 0.5);
+}

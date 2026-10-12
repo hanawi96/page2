@@ -1,0 +1,161 @@
+/* Reset + style nền tảng + tiện ích dùng chung. Chỉ dùng biến từ tokens.css. */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100dvh;
+	font-family: var(--font-sans);
+	font-size: var(--text-base);
+	line-height: var(--leading-normal);
+	color: var(--color-text);
+	background: var(--color-bg);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+	margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	line-height: var(--leading-tight);
+	font-weight: var(--weight-semibold);
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+}
+
+ul,
+ol {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+img,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+	border-radius: var(--radius-sm);
+}
+
+::selection {
+	background: var(--color-primary-soft-hover);
+}
+
+/* Thanh cuộn gọn */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--color-border-strong) transparent;
+}
+
+/* ---------- Tiện ích ---------- */
+.card {
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-sm);
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.truncate {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.line-clamp-2 {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+/* Gán màu chủ đề: dùng data-accent="pink" trên bất kỳ phần tử nào */
+[data-accent='blue'] {
+	--accent-fg: var(--accent-blue-fg);
+	--accent-bg: var(--accent-blue-bg);
+}
+[data-accent='pink'] {
+	--accent-fg: var(--accent-pink-fg);
+	--accent-bg: var(--accent-pink-bg);
+}
+[data-accent='orange'] {
+	--accent-fg: var(--accent-orange-fg);
+	--accent-bg: var(--accent-orange-bg);
+}
+[data-accent='green'] {
+	--accent-fg: var(--accent-green-fg);
+	--accent-bg: var(--accent-green-bg);
+}
+[data-accent='purple'] {
+	--accent-fg: var(--accent-purple-fg);
+	--accent-bg: var(--accent-purple-bg);
+}
+[data-accent='yellow'] {
+	--accent-fg: var(--accent-yellow-fg);
+	--accent-bg: var(--accent-yellow-bg);
+}
+[data-accent='teal'] {
+	--accent-fg: var(--accent-teal-fg);
+	--accent-bg: var(--accent-teal-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
