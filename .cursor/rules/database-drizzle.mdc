@@ -1,0 +1,39 @@
+---
+description: Quy tắc PostgreSQL + Drizzle: schema, migration, truy vấn, transaction, index
+globs: src/lib/server/db/**,drizzle/**,drizzle.config.ts
+alwaysApply: false
+---
+
+# Database (PostgreSQL + Drizzle)
+
+## Schema
+
+- Schema ở `src/lib/server/db/schema/`, mỗi nhóm bảng một file (`auth.ts`, `pages.ts`, `content.ts`, `scheduling.ts`, `publishing.ts`); export qua `schema/index.ts`.
+- Tên bảng/cột `snake_case`, bảng số nhiều (`content_items`). Khóa chính `uuid` (`defaultRandom()`).
+- Mọi bảng nghiệp vụ: `workspace_id` (FK, NOT NULL, có index), `created_at`, `updated_at` (`timestamptz`, default `now()`).
+- Thời gian luôn `timestamptz` (UTC). Không lưu giờ địa phương; chuyển sang `Asia/Ho_Chi_Minh` ở lớp hiển thị/tính lịch.
+- Trạng thái dùng `pgEnum` hoặc `text` + `check`, khai báo giá trị một lần và dùng lại kiểu suy ra (`$inferSelect`, `$inferInsert`).
+- Ràng buộc dữ liệu đặt ở DB, không chỉ ở code: `NOT NULL`, `UNIQUE`, FK, `CHECK`.
+  - Chống đăng trùng: unique `(page_id, content_item_id)`; lượt đăng: unique `(slot_id, scheduled_for)`.
+- Dữ liệu nhạy cảm (token) lưu dạng đã mã hóa + `key_id`; không bao giờ lưu rõ.
+- Xóa mềm (`deleted_at`) chỉ khi cần giữ lịch sử; ngược lại xóa thật có kiểm soát FK.
+
+## Migration
+
+- Chỉ dùng `drizzle-kit generate` rồi `migrate`. **Không** sửa tay migration đã chạy; sửa schema thì tạo migration mới.
+- Mỗi migration nhỏ, một mục đích, đặt tên rõ. Commit migration cùng code thay đổi schema.
+- Không dùng `drizzle-kit push` ngoài môi trường thử nghiệm cá nhân.
+
+## Truy vấn
+
+- Truy vấn nằm trong `server/db/` hoặc repository của tính năng; service không tự dựng SQL dài.
+- Luôn lọc `workspace_id`. Chỉ `select` cột cần thiết cho danh sách lớn; **phân trang** (keyset hoặc limit/offset) cho mọi danh sách có thể > 100 dòng.
+- Tránh N+1: dùng join hoặc `inArray` để lấy theo lô.
+- Thao tác nhiều bước phải trong `db.transaction(...)`. Chọn bài để đăng dùng `FOR UPDATE SKIP LOCKED` để không bị chọn trùng khi chạy song song.
+- Thêm index theo truy vấn thực tế (khóa ngoại, cột lọc/sắp xếp thường dùng), không đoán.
+- Dùng tham số hóa của Drizzle; không nối chuỗi SQL từ input.
+
+## Kết nối
+
+- Một pool dùng chung (`server/db/client.ts`); Worker và web dùng cùng cấu hình. Chuỗi kết nối chỉ từ env.
+- pg-boss dùng schema riêng của nó; không sửa bảng của pg-boss bằng tay.

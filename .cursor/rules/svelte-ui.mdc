@@ -1,0 +1,40 @@
+---
+description: Quy tắc UI Svelte 5, Design System, CSS, responsive, dark mode, accessibility
+globs: **/*.svelte,**/*.css
+alwaysApply: false
+---
+
+# Svelte 5 và giao diện
+
+## Svelte 5
+
+- Chỉ dùng runes: `$state`, `$derived`, `$derived.by`, `$props`, `$bindable`, `$effect`. Không dùng cú pháp Svelte 4 (`export let`, `$:`, `<slot>`).
+- Ưu tiên `$derived` thay `$effect` để đồng bộ giá trị. `$effect` chỉ cho tác dụng phụ (DOM, timer, subscription) và phải dọn dẹp.
+- Nội dung truyền vào bằng `Snippet` (`{@render children()}`). Danh sách `{#each}` luôn có key.
+- Props khai báo bằng `type Props = {...}`; callback đặt tên `onxxx` (`onselect`, `onclose`).
+- Đổi trạng thái khi đổi dữ liệu gốc thì bọc `{#key id}` thay vì `$effect` reset.
+- Trang chỉ ghép component và gọi dữ liệu; logic nghiệp vụ đưa sang `domain/`.
+
+## Design System (bắt buộc)
+
+- **Mọi** màu, cỡ chữ, spacing, bo góc, đổ bóng, z-index, thời gian chuyển động lấy từ biến trong `src/lib/styles/tokens.css`. Cấm hardcode (`#fff`, `12px`, `rgb()`) trong component.
+- Cần giá trị mới thì thêm token ở `tokens.css` (cả light và dark), rồi mới dùng.
+- Màu theo **ngữ nghĩa** (`--color-surface`, `--color-text-muted`), không theo tên màu thô. Màu chủ đề dùng `data-accent`.
+- Mọi thứ phải đẹp ở cả Light và Dark (`:root[data-theme='dark']`). Kiểm tra cả hai khi làm UI.
+- Dùng lại component trong `components/ui` (Button, Badge, Tabs, Toggle, Progress, Avatar, EmptyState, StatCard, PageHeader, Toaster). Chỉ tạo component mới khi chưa có và sẽ dùng ≥ 2 nơi.
+- Thông báo nhanh dùng `toasts.push(...)`; trạng thái rỗng dùng `EmptyState`; tải dữ liệu dùng skeleton, không để trống.
+
+## CSS
+
+- Vanilla CSS, scoped trong `<style>` của component. Không Tailwind, không thư viện UI.
+- Layout dùng Grid/Flex; responsive bằng media/container query (mobile < 640px, tablet < 1024px, drawer < 1280px).
+- Tránh `!important`, tránh selector sâu; dùng `data-*` attribute cho biến thể (`data-variant`, `data-tone`).
+- Tôn trọng `prefers-reduced-motion`. Transition chỉ trên `opacity`/`transform`/màu.
+
+## Accessibility và UX
+
+- Phần tử tương tác phải là `<button>`/`<a>` thật; nút chỉ có icon bắt buộc có `aria-label` (dùng `IconButton`).
+- Có trạng thái `:focus-visible`, tương phản đủ, điều khiển được bằng bàn phím.
+- Thao tác nguy hiểm (xóa, đăng hàng loạt) luôn có hộp xác nhận nói rõ hậu quả.
+- Lỗi hiển thị bằng tiếng Việt dễ hiểu và có hành động tiếp theo (ví dụ nút "Thử lại").
+- Ưu tiên `use:enhance` (progressive enhancement) cho form; hiển thị trạng thái đang gửi, chặn bấm đúp.

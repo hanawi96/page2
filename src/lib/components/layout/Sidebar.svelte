@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { navItems, type NavItem } from '#lib/config/nav.js';
+	import { navItems } from '#lib/config/nav.js';
 	import { X } from '@lucide/svelte';
 	import IconButton from '#lib/components/ui/IconButton.svelte';
+	import Logo from './Logo.svelte';
 
 	type Props = {
 		open: boolean;
@@ -12,7 +13,7 @@
 
 	let { open, onclose }: Props = $props();
 
-	function isActive(href: NavItem['href']): boolean {
+	function isActive(href: string): boolean {
 		const path = page.url.pathname;
 		return href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
 	}
@@ -20,19 +21,7 @@
 
 <aside class="sidebar" data-open={open} aria-label="Điều hướng chính">
 	<div class="brand">
-		<svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
-			<defs>
-				<linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
-					<stop offset="0" stop-color="var(--brand-400)" />
-					<stop offset="1" stop-color="var(--brand-600)" />
-				</linearGradient>
-			</defs>
-			<rect width="32" height="32" rx="9" fill="url(#brand-grad)" />
-			<path
-				d="M11 8h10a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-7v3h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5v4a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"
-				fill="#fff"
-			/>
-		</svg>
+		<Logo />
 		<span class="name">Fanpage Manager</span>
 		<span class="close">
 			<IconButton label="Đóng menu" size="sm" onclick={onclose}><X size={18} /></IconButton>
@@ -41,15 +30,11 @@
 
 	<nav>
 		<ul>
-			{#each navItems as item (item.href)}
-				{@const active = isActive(item.href)}
+			{#each navItems as item (item.route)}
+				{@const href = resolve(item.route)}
+				{@const active = isActive(href)}
 				<li>
-					<a
-						href={resolve(item.href)}
-						class="nav-link"
-						aria-current={active ? 'page' : undefined}
-						onclick={onclose}
-					>
+					<a {href} class="nav-link" aria-current={active ? 'page' : undefined} onclick={onclose}>
 						<item.icon size={20} aria-hidden="true" />
 						<span>{item.label}</span>
 					</a>
@@ -92,11 +77,6 @@
 		gap: var(--space-3);
 		padding: 0 var(--space-2);
 		margin-bottom: var(--space-2);
-	}
-	.logo {
-		width: 2.25rem;
-		height: 2.25rem;
-		flex: none;
 	}
 	.name {
 		flex: 1;

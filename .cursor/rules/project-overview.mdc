@@ -1,0 +1,50 @@
+---
+description: Tổng quan dự án Fanpage Manager, kiến trúc, cấu trúc thư mục và quy trình làm việc theo giai đoạn
+alwaysApply: true
+---
+
+# Fanpage Manager: tổng quan và quy trình
+
+Webapp quản lý và đăng bài lên ~100 Fanpage qua Meta Graph API chính thức. Dùng cá nhân trước, về sau bán SaaS (VPS + domain).
+
+## Mô hình nghiệp vụ
+
+- **Chủ đề (Topic)** chứa **Bài trong kho (Content Item)**: text + ảnh.
+- **Khung giờ (Slot)** của một Page: các thứ trong tuần + giờ + chủ đề nguồn. **Lịch mẫu** áp dụng cho nhiều Page.
+- Đến giờ, Scheduler chọn bài theo FIFO. Mỗi bài chỉ đăng **một lần cho mỗi Page** (unique `page_id + content_item_id`).
+- Kho hết bài: bỏ qua lượt và cảnh báo. Trễ dưới 60 phút thì đăng bù, quá hạn đánh dấu "Bỏ lỡ". Có lệch giờ ngẫu nhiên (mặc định ±3 phút).
+- Múi giờ `Asia/Ho_Chi_Minh`, lưu UTC (`timestamptz`). Giao diện chỉ tiếng Việt.
+
+## Công nghệ (không đổi nếu chưa được duyệt)
+
+SvelteKit 3, Svelte 5 (runes), TypeScript strict, Vanilla CSS + Design Tokens, PostgreSQL + Drizzle ORM, pg-boss (Worker là process Node riêng), Valibot để validate. Chạy trực tiếp trên Windows, không Docker/Redis; mã phải chạy được cả trên Linux (VPS sau này).
+
+## Cấu trúc thư mục
+
+```
+src/lib/
+  styles/       tokens.css (nguồn duy nhất cho giá trị thiết kế), base.css
+  components/   ui/ (dùng chung) · layout/ · <tính-năng>/ (topics, pages, ...)
+  domain/       kiểu dữ liệu + logic nghiệp vụ THUẦN (không IO) + *.spec.ts
+  server/       CHỈ chạy ở server: db/, services/, facebook/, queue/, auth/, storage/
+  stores/       trạng thái UI dùng chung (*.svelte.ts)
+  utils/        hàm tiện ích nhỏ, không phụ thuộc framework
+  config/       cấu hình tĩnh (nav, hằng số)
+  mock/         dữ liệu mẫu, xóa dần khi có dữ liệu thật
+src/routes/     chỉ là lớp mỏng: nhận request, gọi service, trả dữ liệu
+worker/         entry point của Worker, dùng lại src/lib/server
+```
+
+## Quy trình bắt buộc
+
+1. Làm theo từng **giai đoạn**; chỉ sang giai đoạn kế tiếp khi người dùng xác nhận.
+2. Trước khi code một tính năng: đọc code liên quan, tái sử dụng cái đã có, không đoán.
+3. Với Meta Graph API: **đối chiếu tài liệu chính thức** trước khi viết (phiên bản, quyền, giới hạn). Không code theo trí nhớ.
+4. Xong mỗi giai đoạn phải đạt: `npm run check` (0 lỗi), `npm run lint`, `npm test`, `npm run build`; sau đó hướng dẫn cách test và dừng chờ xác nhận.
+5. Không thêm tính năng, thư viện, abstraction ngoài phạm vi giai đoạn hiện tại.
+
+## Môi trường Windows (PowerShell 5.1)
+
+- Nối lệnh bằng `;`, không dùng `&&`.
+- Sửa file bằng công cụ chỉnh sửa, **không** dùng `Set-Content`/`Out-File` trên file có tiếng Việt (dễ hỏng mã hóa UTF-8).
+- Không commit hoặc in ra bí mật; `.env` luôn bị git ignore, cập nhật `.env.example` khi thêm biến mới.

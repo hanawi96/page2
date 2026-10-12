@@ -1,3 +1,4 @@
+import type { RouteId } from '$app/types';
 import {
 	CalendarDays,
 	Flag,
@@ -11,27 +12,20 @@ import {
 import type { Component } from 'svelte';
 
 export interface NavItem {
-	href:
-		| '/'
-		| '/fanpage'
-		| '/kho-noi-dung'
-		| '/chu-de'
-		| '/lich-dang'
-		| '/tu-dong-dang'
-		| '/lich-su'
-		| '/cai-dat';
+	/** Route ID của SvelteKit (kèm nhóm), dùng với `resolve()` để ra đường dẫn thật. */
+	route: RouteId;
 	label: string;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	icon: Component<any>;
 }
 
 export const navItems: readonly NavItem[] = [
-	{ href: '/', label: 'Tổng quan', icon: LayoutGrid },
-	{ href: '/fanpage', label: 'Fanpage', icon: Flag },
-	{ href: '/kho-noi-dung', label: 'Kho nội dung', icon: FolderOpen },
-	{ href: '/chu-de', label: 'Chủ đề', icon: Layers },
-	{ href: '/lich-dang', label: 'Lịch đăng', icon: CalendarDays },
-	{ href: '/tu-dong-dang', label: 'Tự động đăng', icon: RefreshCw },
-	{ href: '/lich-su', label: 'Lịch sử', icon: ScrollText },
-	{ href: '/cai-dat', label: 'Cài đặt', icon: Settings }
+	{ route: '/(app)', label: 'Tổng quan', icon: LayoutGrid },
+	{ route: '/(app)/fanpage', label: 'Fanpage', icon: Flag },
+	{ route: '/(app)/kho-noi-dung', label: 'Kho nội dung', icon: FolderOpen },
+	{ route: '/(app)/chu-de', label: 'Chủ đề', icon: Layers },
+	{ route: '/(app)/lich-dang', label: 'Lịch đăng', icon: CalendarDays },
+	{ route: '/(app)/tu-dong-dang', label: 'Tự động đăng', icon: RefreshCw },
+	{ route: '/(app)/lich-su', label: 'Lịch sử', icon: ScrollText },
+	{ route: '/(app)/cai-dat', label: 'Cài đặt', icon: Settings }
 ];

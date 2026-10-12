@@ -1,0 +1,53 @@
+---
+description: Quy tắc chất lượng code chung: tối giản, tái sử dụng, đặt tên, TypeScript strict, xử lý lỗi, import
+alwaysApply: true
+---
+
+# Chất lượng code
+
+## Tối giản, không code thừa
+
+- Chỉ viết code mà tính năng hiện tại cần (YAGNI). Không viết hàm, tham số, prop, file "để sau này dùng".
+- Không để code chết: import không dùng, biến thừa, đoạn comment-out, `console.log` gỡ lỗi. Xóa luôn, git đã lưu lịch sử.
+- Không thêm thư viện nếu vài chục dòng code thuần làm được. Mỗi dependency mới phải có lý do rõ.
+- Không tạo file tài liệu/README phụ nếu không được yêu cầu.
+
+## Tái sử dụng hợp lý
+
+- Trước khi viết mới: tìm trong `components/ui`, `domain`, `utils`. Có sẵn thì dùng.
+- Lặp lại lần thứ **3** mới trích xuất; lần 2 chấp nhận trùng. Không tạo abstraction đoán trước.
+- Logic dùng ở cả UI lẫn server nằm trong `domain/` (thuần, không IO). Logic chỉ ở server nằm trong `server/`.
+- Một hằng số/magic number chỉ được định nghĩa ở **một** nơi (`config/` hoặc `domain/`).
+
+## Tổ chức file
+
+- Một file một trách nhiệm. Component > ~200 dòng hoặc file `.ts` > ~250 dòng thì cân nhắc tách.
+- Hàm làm một việc, ≤ ~40 dòng, tối đa 3 tham số (nhiều hơn thì dùng object).
+- Tên file: component `PascalCase.svelte`; module `kebab-case.ts`; rune store `ten.svelte.ts`; test cạnh file `ten.spec.ts`.
+- Đặt code theo **tính năng** (`components/topics/`), không theo loại kỹ thuật chung chung.
+- Route slug tiếng Việt không dấu, kebab-case (`/chu-de`, `/lich-dang`).
+
+## TypeScript
+
+- `strict` luôn bật. Cấm `any` (dùng `unknown` + thu hẹp kiểu). Cấm `@ts-ignore`; nếu bắt buộc, dùng `@ts-expect-error` kèm lý do.
+- Kiểu miền (domain) định nghĩa một lần trong `domain/`, dùng lại ở mọi nơi. Ưu tiên union literal thay cho enum.
+- Mọi dữ liệu từ ngoài (form, request, Facebook API, env) phải được validate (Valibot) rồi mới tin kiểu.
+- Hàm công khai có kiểu trả về tường minh; hàm cục bộ cho phép suy luận.
+
+## Import
+
+- Dùng alias `#lib/...`. File `.ts` import **kèm đuôi `.js`** (`#lib/utils/text.js`); rune store: `#lib/stores/theme.svelte.js`; component: `.svelte`.
+- Trong cùng thư mục dùng đường dẫn tương đối (`./topic-icons`).
+- Code client không bao giờ import từ `#lib/server/...`.
+
+## Xử lý lỗi và comment
+
+- Không nuốt lỗi (`catch {}` rỗng). Hoặc xử lý có chủ đích, hoặc ném lại kèm ngữ cảnh (`cause`).
+- Lỗi nghiệp vụ dự đoán được dùng kiểu lỗi riêng; thông báo cho người dùng bằng tiếng Việt, dễ hiểu, nói rõ cách khắc phục.
+- Comment viết bằng tiếng Việt, chỉ giải thích **vì sao**, không lặp lại code làm gì. Tên tốt thay comment.
+- Không hardcode URL, khóa, ID, đường dẫn; lấy từ `.env` (đã validate) hoặc `config/`.
+
+## Hiệu năng
+
+- Ưu tiên tải dữ liệu ở server (`load`), phân trang/virtual list cho danh sách lớn, tránh N+1 truy vấn.
+- Không import cả thư viện icon; chỉ import icon cần dùng từ `@lucide/svelte`.

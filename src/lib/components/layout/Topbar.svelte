@@ -1,17 +1,16 @@
 <script lang="ts">
-	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import IconButton from '#lib/components/ui/IconButton.svelte';
+	import type { Role } from '#lib/domain/roles.js';
 	import { theme } from '#lib/stores/theme.svelte.js';
-	import { Bell, ChevronDown, Menu, Moon, Sun } from '@lucide/svelte';
+	import { Bell, Menu, Moon, Sun } from '@lucide/svelte';
+	import UserMenu from './UserMenu.svelte';
 
 	type Props = {
+		user: { name: string; email: string; role: Role };
 		onmenu: () => void;
 	};
 
-	let { onmenu }: Props = $props();
-
-	// Tạm thời dữ liệu mẫu; sẽ lấy từ session ở Giai đoạn 3 (Authentication).
-	const user = { name: 'Shina', role: 'Quản trị viên' };
+	let { user, onmenu }: Props = $props();
 </script>
 
 <div class="topbar">
@@ -32,14 +31,7 @@
 			<span class="theme-icon moon"><Moon size={20} /></span>
 		</IconButton>
 
-		<button type="button" class="user" aria-label="Tài khoản của bạn">
-			<Avatar name={user.name} accent="blue" size="lg" />
-			<span class="user-text">
-				<strong>{user.name}</strong>
-				<small>{user.role}</small>
-			</span>
-			<ChevronDown size={16} aria-hidden="true" />
-		</button>
+		<UserMenu {user} />
 	</div>
 </div>
 
@@ -80,36 +72,6 @@
 		display: none;
 	}
 
-	.user {
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
-		margin-inline-start: var(--space-2);
-		padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1);
-		border: 0;
-		border-radius: var(--radius-pill);
-		background: transparent;
-		color: var(--color-text-muted);
-		text-align: left;
-		transition: background var(--duration-fast) var(--ease);
-	}
-	.user:hover {
-		background: var(--color-surface-hover);
-	}
-	.user-text {
-		display: grid;
-		line-height: 1.2;
-	}
-	.user-text strong {
-		font-size: var(--text-sm);
-		font-weight: var(--weight-semibold);
-		color: var(--color-text);
-	}
-	.user-text small {
-		font-size: var(--text-xs);
-		color: var(--color-text-muted);
-	}
-
 	/* Desktop: cụm thông báo/user nằm cùng hàng với tiêu đề trang */
 	@media (min-width: 1024px) {
 		.topbar {
@@ -133,13 +95,6 @@
 			padding: 0 var(--space-4);
 			background: color-mix(in srgb, var(--color-bg) 88%, transparent);
 			backdrop-filter: blur(8px);
-		}
-	}
-
-	@media (max-width: 639.98px) {
-		.user-text,
-		.user :global(svg:last-child) {
-			display: none;
 		}
 	}
 </style>

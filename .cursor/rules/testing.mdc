@@ -1,0 +1,31 @@
+---
+description: Quy tắc kiểm thử với Vitest: test gì, đặt ở đâu, cách viết, tiêu chí hoàn thành giai đoạn
+globs: **/*.spec.ts,**/*.test.ts
+alwaysApply: false
+---
+
+# Kiểm thử
+
+## Test gì
+
+- **Bắt buộc** test logic thuần trong `domain/` và `utils/`: tính khung giờ/lịch, chọn bài FIFO, state machine đăng bài, phân loại lỗi Facebook, định dạng. Đây là chỗ sai sẽ gây hậu quả lớn.
+- Service có truy vấn DB: test bằng database thử nghiệm riêng (không dùng DB thật của người dùng).
+- Không test chi tiết trình bày của UI/CSS. Component chỉ test khi có logic tương tác phức tạp.
+- Phần gọi Facebook test qua client giả (interface `Publisher`/`FacebookClient`), **không** gọi API thật trong test tự động.
+
+## Cách viết
+
+- File cạnh code: `ten.ts` ↔ `ten.spec.ts`. Mô tả (`describe`/`it`) bằng tiếng Việt, nói hành vi mong đợi.
+- Mỗi test một ý, dữ liệu tối thiểu, không phụ thuộc thứ tự hay đồng hồ thật (truyền thời gian vào hàm hoặc dùng fake timers).
+- Phải có assertion (`expect.requireAssertions` đã bật). Bao gồm ca biên: rỗng, 0, trùng, quá hạn, múi giờ.
+- Lỗi vừa sửa thì thêm test tái hiện lỗi đó trước khi sửa.
+
+## Trước khi báo hoàn thành
+
+Chạy theo thứ tự và sửa tới khi sạch:
+
+```
+npm run check ; npm run lint ; npm test ; npm run build
+```
+
+Với UI: mở trang bằng `npm run dev`, kiểm tra Light/Dark và màn hình hẹp. Với Facebook/queue: chạy bằng Fake Publisher trước, đăng thật thử trên 1–2 Page rồi mới mở rộng.

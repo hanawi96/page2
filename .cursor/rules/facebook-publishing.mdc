@@ -1,0 +1,42 @@
+---
+description: Quy tắc tích hợp Meta Graph API, đăng bài, hàng đợi pg-boss, retry, chống đăng trùng, rate limit
+globs: src/lib/server/facebook/**,src/lib/server/queue/**,src/lib/server/services/publish*,src/lib/server/services/schedul*,worker/**
+alwaysApply: false
+---
+
+# Facebook và đăng bài
+
+## Meta Graph API
+
+- **Đối chiếu tài liệu chính thức** (phiên bản, quyền, endpoint, giới hạn) trước khi viết/sửa code gọi Facebook. Ghi lại nguồn trong comment ngắn khi quy tắc không hiển nhiên.
+- Phiên bản Graph API lấy từ env `FB_GRAPH_VERSION`; không rải chuỗi `v2x.0` trong code.
+- Toàn bộ lời gọi đi qua **một client** `server/facebook/client.ts` (timeout, header giới hạn tốc độ, ánh xạ lỗi). Không `fetch` trực tiếp tới Facebook ở nơi khác.
+- Mọi phản hồi Facebook validate bằng Valibot trước khi dùng.
+- Nhiều ảnh: upload từng ảnh `published=false`, rồi tạo bài với `attached_media`. Upload **file nhị phân** (multipart) vì localhost không có URL công khai.
+- Sửa bài chỉ với nội dung text; không sửa ảnh sau khi đăng. UI phải ẩn/giải thích thao tác không hỗ trợ.
+- Đăng qua interface `Publisher` (text/ảnh hiện tại; video/Reels thêm sau bằng cách implement thêm, không sửa lõi).
+
+## Phân loại lỗi (một nơi duy nhất)
+
+`server/facebook/errors.ts` ánh xạ mã lỗi Facebook sang hành động:
+
+- **retryable**: rate limit, lỗi tạm thời 5xx trước khi tạo bài → retry có backoff.
+- **token/permission**: token hết hạn hoặc mất quyền → dừng, đánh dấu Page `cần kết nối lại`, không retry.
+- **blocked/spam**: Page bị hạn chế → tạm dừng Page, báo người dùng.
+- **unknown outcome**: timeout/mất kết nối sau khi gửi → trạng thái `unknown`.
+
+## Chống đăng trùng (quan trọng nhất)
+
+- Facebook không có idempotency key, nên tự quản lý: mỗi (bài, page) là một dòng `publish_targets` với state machine `queued → publishing → published | failed | unknown`.
+- Chuyển sang `publishing` bằng cập nhật có điều kiện (compare-and-set) **trước** khi gọi Facebook; ghi `fb_post_id` ngay khi nhận được.
+- `unknown` **không được retry mù**: kiểm tra lại feed của Page để xác minh rồi mới quyết định.
+- Ràng buộc unique ở DB là chốt chặn cuối; job dùng `singletonKey` của pg-boss.
+
+## Queue, Scheduler, Worker
+
+- Worker là process riêng, không chứa logic nghiệp vụ; chỉ gọi service. Job nhỏ, idempotent, payload gồm ID (không nhét dữ liệu lớn/token).
+- Scheduler chạy mỗi phút, tạo lượt đăng với unique `(slot_id, scheduled_for)`; chọn bài FIFO trong transaction (`SKIP LOCKED`).
+- Giới hạn tốc độ: đồng thời có hạn (cấu hình), lệch giờ ngẫu nhiên, đọc `X-Business-Use-Case-Usage` để tự giãn. Công bằng theo workspace.
+- Grace window 60 phút (đăng bù), quá hạn → `missed`. Page lỗi liên tiếp thì tự tạm dừng.
+- Worker ghi heartbeat để Dashboard hiển thị trạng thái; xử lý tắt máy gọn (graceful shutdown).
+- Có **Fake Publisher** (dry-run, chọn bằng env) để test toàn bộ pipeline mà không đăng thật.

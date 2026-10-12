@@ -1,0 +1,45 @@
+---
+description: Kiến trúc server: phân lớp, workspace scoping, bảo mật, validate, session, phân quyền, cấu hình
+globs: src/lib/server/**,src/routes/**/+server.ts,src/routes/**/+page.server.ts,src/routes/**/+layout.server.ts,src/hooks.server.ts,worker/**
+alwaysApply: false
+---
+
+# Server: kiến trúc và bảo mật
+
+## Phân lớp (chỉ gọi xuống dưới)
+
+```
+routes (+page.server.ts, +server.ts)  →  server/services  →  server/db (Drizzle) · server/facebook · server/queue · server/storage
+                                              ↓
+                                        domain/ (logic thuần)
+```
+
+- **Route** chỉ: xác thực + phân quyền, validate input, gọi **một** service, trả kết quả. Không viết SQL hay logic nghiệp vụ trong route.
+- **Service** chứa nghiệp vụ, nhận `ctx` (`workspaceId`, `userId`, `role`) làm tham số đầu. Worker và route dùng chung service.
+- **Db** chỉ truy vấn; **facebook** chỉ nói chuyện với Graph API; không lẫn nhau.
+- Module server-only đặt trong `src/lib/server/`. Cấm import vào code client.
+
+## Đa workspace (chuẩn bị SaaS)
+
+- Mọi bảng nghiệp vụ có `workspace_id`. Mọi truy vấn **bắt buộc** lọc theo `workspaceId` qua helper/repository chung; không viết truy vấn không có phạm vi workspace.
+- Mọi job queue có `workspace_id` trong payload. Quota theo workspace kiểm tra ở service (hiện đặt không giới hạn).
+- Không truy cập dữ liệu chéo workspace trừ cờ `is_platform_admin` ở khu quản trị riêng.
+
+## Bảo mật
+
+- Phân quyền kiểm tra **ở server** trong mỗi route/service (Owner/Admin/Editor), không tin ẩn/hiện nút ở UI.
+- Mật khẩu: argon2id. Session lưu DB, cookie `HttpOnly`, `SameSite=Lax`, `Secure` khi chạy HTTPS; chỉ lưu **hash** của session id. Giới hạn tốc độ đăng nhập.
+- Mọi input (form, JSON, query, upload) validate bằng Valibot ở biên; upload ảnh kiểm tra loại/ kích thước, đặt tên theo hash, không tin tên file gốc.
+- Token Facebook: mã hóa AES-256-GCM, khóa trong `.env`, có `key_id` để xoay khóa. **Không bao giờ** đưa token vào response, log, hay lỗi trả về client.
+- Log dùng logger có cấp độ, che dữ liệu nhạy cảm (token, mật khẩu, email đầy đủ). Không `console.log` ở code production.
+- Không dùng `{@html}` với dữ liệu người dùng; chống CSRF bằng cơ chế kiểm tra origin của SvelteKit.
+
+## Cấu hình
+
+- Mọi biến môi trường đọc và validate **một lần** ở `server/env.ts` (Valibot), fail-fast khi thiếu. Không đọc `process.env` rải rác.
+- `.env.example` liệt kê đủ biến (không có giá trị thật). `BASE_URL`, `FB_GRAPH_VERSION`, đường dẫn lưu ảnh đều cấu hình qua env.
+- Đường dẫn dùng `node:path`; không hardcode đường dẫn Windows, để chạy được trên Linux.
+
+## Trả lỗi
+
+- Service ném lỗi có kiểu (`NotFoundError`, `ForbiddenError`, `ValidationError`, `ExternalApiError`); route chuyển thành mã HTTP phù hợp. Thông báo hướng người dùng bằng tiếng Việt, chi tiết kỹ thuật chỉ vào log.
