@@ -22,6 +22,11 @@ export function canManageUsers(actor: Role): boolean {
 	return assignableRoles(actor).length > 0;
 }
 
+/** Kết nối/ngắt kết nối tài khoản Facebook và đồng bộ Page: chỉ chủ sở hữu và quản trị viên. */
+export function canManagePages(actor: Role): boolean {
+	return actor === 'owner' || actor === 'admin';
+}
+
 /** `actor` có quyền quản lý (đổi vai trò, khóa, đặt lại mật khẩu) thành viên `target` hay không. */
 export function canManageMember(actor: Role, target: Role): boolean {
 	if (actor === 'owner') return target !== 'owner';

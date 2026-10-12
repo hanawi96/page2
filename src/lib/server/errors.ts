@@ -43,6 +43,16 @@ export class ConflictError extends AppError {
 	}
 }
 
+/** Dịch vụ bên ngoài (Facebook...) lỗi hoặc không phản hồi; chi tiết kỹ thuật nằm ở `cause`. */
+export class ExternalApiError extends AppError {
+	constructor(
+		message = 'Không kết nối được tới Facebook. Vui lòng thử lại sau ít phút.',
+		options?: ErrorOptions
+	) {
+		super(message, 502, options);
+	}
+}
+
 export class RateLimitError extends AppError {
 	constructor(readonly retryAfterSeconds: number) {
 		super(

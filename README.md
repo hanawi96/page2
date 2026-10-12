@@ -2,7 +2,7 @@
 
 Webapp nội bộ quản lý và đăng bài hàng loạt lên nhiều Fanpage Facebook (Meta Graph API), chạy trên Windows localhost.
 
-**Công nghệ:** SvelteKit 3 · Svelte 5 · TypeScript (strict) · Vanilla CSS (Design Tokens) · PostgreSQL + Drizzle ORM + pg-boss _(sẽ thêm ở các giai đoạn sau)_.
+**Công nghệ:** SvelteKit 3 · Svelte 5 · TypeScript (strict) · Vanilla CSS (Design Tokens) · PostgreSQL + Drizzle ORM · pg-boss _(sẽ thêm ở giai đoạn 6)_.
 
 ## Tiến độ
 
@@ -10,8 +10,8 @@ Webapp nội bộ quản lý và đăng bài hàng loạt lên nhiều Fanpage F
 | --------- | ------------------------------------------------------ | ---------- |
 | 1         | Khởi tạo dự án                                         | ✅ Xong    |
 | 2         | Design System, layout, Dashboard, Chủ đề (dữ liệu mẫu) | ✅ Xong    |
-| 3         | Database & Authentication                              | Chưa làm   |
-| 4         | Kết nối Facebook                                       | Chưa làm   |
+| 3         | Database & Authentication                              | ✅ Xong    |
+| 4         | Kết nối Facebook                                       | ✅ Xong    |
 | 5         | Chủ đề & Kho bài                                       | Chưa làm   |
 | 6         | Đăng thủ công + Worker                                 | Chưa làm   |
 | 7         | Lịch đăng theo Page + Scheduler                        | Chưa làm   |
@@ -19,13 +19,32 @@ Webapp nội bộ quản lý và đăng bài hàng loạt lên nhiều Fanpage F
 ## Yêu cầu
 
 - Node.js **LTS** (khuyến nghị 24.x hoặc mới hơn bản LTS).
-- PostgreSQL (cần từ Giai đoạn 3).
+- PostgreSQL 17.
+
+## Thiết lập lần đầu
+
+1. Tạo database và role riêng, rồi sao chép `.env.example` thành `.env` và điền `DATABASE_URL`, `BASE_URL`.
+2. `npm run db:migrate` để tạo bảng.
+3. Tạo `TOKEN_ENCRYPTION_KEY` (32 byte, mã hóa base64) theo hướng dẫn trong `.env.example`.
+4. `npm run dev`, mở `/thiet-lap` để tạo tài khoản chủ sở hữu (chỉ làm được khi hệ thống chưa có người dùng).
+
+## Kết nối Facebook
+
+1. Trong [Meta App Dashboard](https://developers.facebook.com/apps/) mở ứng dụng, thêm sản phẩm **Facebook Login** (hoặc dùng **Facebook Login for Business** nếu ứng dụng loại Business).
+2. **Valid OAuth Redirect URIs** phải khớp đúng: `http://localhost:5173/fanpage/ket-noi/callback` (đổi host khi triển khai).
+3. Điền `FB_APP_ID` và `FB_APP_SECRET` vào `.env`. Ứng dụng loại Business: thêm `FB_LOGIN_CONFIG_ID` (ID của Configuration). Mặc định Graph API `v26.0`.
+4. Chế độ Development: thêm tài khoản Facebook của bạn làm Admin/Developer/Tester của app, rồi khởi động lại `npm run dev`.
+5. Trong app, trang **Fanpage** → **Kết nối Facebook**. Chỉ chủ sở hữu và quản trị viên kết nối được.
+
+Đổi cấu trúc bảng: sửa `src/lib/server/db/schema/`, chạy `npm run db:generate`, rồi `npm run db:migrate`.
 
 ## Lệnh thường dùng
 
 ```bash
 npm install          # cài dependency
 npm run dev          # chạy chế độ phát triển  -> http://localhost:5173
+npm run db:generate  # sinh migration từ schema
+npm run db:migrate   # áp dụng migration vào database
 npm run check        # kiểm tra TypeScript / Svelte
 npm run lint         # Prettier + ESLint
 npm test             # unit test (Vitest)
@@ -43,7 +62,8 @@ src/
       ui/          Button, Badge, Tabs, Toggle, Progress, Toast...
       layout/      Sidebar, Topbar
       topics/      TopicCard, TopicDetail...
-    domain/        Logic nghiệp vụ thuần (topic, schedule) + test
+    server/        Chỉ chạy ở server: db/ (Drizzle), auth/, services/, http/
+    domain/        Logic nghiệp vụ thuần (topic, schedule, roles) + test
     utils/         Hàm tiện ích + test
     stores/        Theme, Toast
     mock/          DỮ LIỆU MẪU (sẽ thay bằng database)

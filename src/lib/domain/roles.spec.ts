@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { assignableRoles, canManageMember, canManageUsers, isAssignableRole } from './roles';
+import {
+	assignableRoles,
+	canManageMember,
+	canManagePages,
+	canManageUsers,
+	isAssignableRole
+} from './roles';
 
 describe('assignableRoles', () => {
 	it('chủ sở hữu gán được admin và editor', () => {
@@ -30,6 +36,14 @@ describe('canManageMember', () => {
 
 	it('editor không quản lý ai', () => {
 		expect(canManageMember('editor', 'editor')).toBe(false);
+	});
+});
+
+describe('canManagePages', () => {
+	it('chỉ owner và admin kết nối Facebook', () => {
+		expect(canManagePages('owner')).toBe(true);
+		expect(canManagePages('admin')).toBe(true);
+		expect(canManagePages('editor')).toBe(false);
 	});
 });
 
